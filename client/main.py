@@ -14,7 +14,7 @@ def get(p1=None, p2=None):
     if p1 is None and p2 is None:
         url = URL+'qsize'
     elif p1 is not None and p2 is not None:
-        url = URL+'testset'+'/'+p1+'/'+p2
+        url = URL+'testcases'+'/'+p1+'/'+p2
     else:
         return None
     r = Request(url, headers={'Authorization': SECRET}, method='GET')

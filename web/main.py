@@ -23,7 +23,7 @@ class WebHandler(BaseHTTPRequestHandler):
         if len(path) < 1:
             self._send_error()
             return
-        if path[0] == 'testset':
+        if path[0] == 'testcases':
             if self.headers.get('Authorization', '') != SECRET:
                 self._send_error()
                 return
