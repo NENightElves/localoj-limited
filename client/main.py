@@ -3,11 +3,12 @@ from urllib.request import Request, urlopen
 from config import *
 import subprocess
 import json
+from getpass import getpass
 
 SECRET = ''
 if not URL.endswith('/'):
     URL = URL+'/'
-SECRET = input()
+SECRET = getpass()
 
 
 def get(p1=None, p2=None):
