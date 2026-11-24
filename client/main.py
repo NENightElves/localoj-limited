@@ -37,13 +37,7 @@ def get_out(p1, p2, prefix=''):
 
 
 def run(q, q_in):
-    cmd = None
-    if str.lower(LANG) == 'c':
-        cmd = cmd_c(q)
-    elif str.lower(LANG) == 'java':
-        cmd = cmd_java(q)
-    elif str.lower(LANG) == 'python':
-        cmd = cmd_python(q)
+    cmd = get_cmd(q)
     if cmd is None:
         return None
     proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True)
