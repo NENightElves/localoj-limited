@@ -6,14 +6,15 @@ import json
 
 result = {}
 rlock = threading.Lock()
-tokens = []
+tokens = {}
 if os.path.exists('result.json'):
     with open('result.json', 'r') as f:
         result = json.loads(f.read())
 if os.path.exists('tokens.txt'):
     with open('tokens.txt', 'r') as f:
         for _ in f:
-            tokens.append(_.strip())
+            t = _.strip().split()
+            tokens[t[0]] = ' '.join(t[1:])
 template = ''
 with open('dashboard.html', 'r') as f:
     template = f.read()
@@ -110,7 +111,7 @@ class WebHandler(BaseHTTPRequestHandler):
             out = self.rfile.read(int(self.headers.get('Content-Length'))).decode()
             if token != '':
                 if token not in result:
-                    result[token] = {'info': token, 't': 0, 'f': 0}
+                    result[token] = {'info': tokens[token], 't': 0, 'f': 0}
                     for k, v in QUESTIONS:
                         result[token][k] = [0 for i in range(v)]
             if out is None:
