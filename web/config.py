@@ -1,12 +1,10 @@
 import uuid
 
 
-SECRET = str(uuid.uuid4())[0:8]
+SECRET = None
 HOST = '0.0.0.0'
 PORT = 6666
 QUESTIONS = {
-    'q1': (3, ''),
-    'q2': (18, 'copycat')
+    'q1': (10, ''),
+    'q2': (10, 'copycat')
 }
-
-print(SECRET)

@@ -11,53 +11,56 @@ if not URL.endswith('/'):
 SECRET = getpass()
 
 
-def get(p1=None, p2=None):
-    if p1 is None and p2 is None:
-        url = URL+'qsize'
-    elif p1 is not None and p2 is not None:
-        url = URL+'testcases'+'/'+p1+'/'+p2
+def get(url, content=None):
+    h = {}
+    if SECRET is not None and SECRET != '':
+        h['Authorization'] = SECRET
+    r = None
+    if content is None:
+        r = Request(url, headers=h, method='GET')
     else:
-        return None
-    r = Request(url, headers={'Authorization': SECRET}, method='GET')
-    content = ''
+        r = Request(url, content.encode(), headers=h, method='POST')
+    result = None
     with urlopen(r) as f:
-        content = f.read().decode('utf-8')
-    return content
+        result = f.read().decode('utf-8')
+    return result
 
 
 def get_q():
-    return json.loads(get())
+    return json.loads(get(URL + 'qsize'))
 
 
-def get_in(p1, p2, prefix=''):
-    return get(p1, prefix+str(p2)+'.in')
+def get_in(p1, p2):
+    return get(URL + 'in/' + p1 + '/' + p2)
 
 
-def get_out(p1, p2, prefix=''):
-    return get(p1, prefix+str(p2)+'.out')
+def get_out(p1, p2, out):
+    return get(URL + 'out/' + p1 + '/' + p2, out)
 
 
-def run(q, q_in):
+def run(q, qn):
     cmd = get_cmd(q)
     if cmd is None:
         return None
-    proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True)
+    q_in = get_in(q, qn)
+    proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     o = None
     try:
         o, _ = proc.communicate(input=q_in, timeout=3)
     except subprocess.TimeoutExpired:
         proc.kill()
         proc.wait()
+        return None
     if proc.returncode != 0:
         return None
     return o
 
 
-def check(q, q_in, q_out):
-    r = run(q, q_in)
+def check(q, qn):
+    r = run(q, qn)
     if r is None:
         return False
-    if r.strip() == q_out.strip():
+    if get_out(q, qn, r).strip().lower() == "true":
         return True
     return False
 
@@ -70,9 +73,7 @@ def checkall():
         print(f'\033[0m{k.center(20, '=')}')
         x = 0
         for _ in range(1, v+1):
-            q_in = get_in(k, str(_), prefix)
-            q_out = get_out(k, str(_), prefix)
-            r = check(k, q_in, q_out)
+            r = check(k, str(_))
             if r:
                 x += 1
                 print(f'\033[32mtest{_}: True')
