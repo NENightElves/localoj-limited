@@ -14,6 +14,9 @@ if os.path.exists('tokens.txt'):
     with open('tokens.txt', 'r') as f:
         for _ in f:
             tokens.append(_.strip())
+template = ''
+with open('dashboard.html', 'r') as f:
+    template = f.read()
 
 
 class WebHandler(BaseHTTPRequestHandler):
@@ -58,6 +61,27 @@ class WebHandler(BaseHTTPRequestHandler):
             content = json.dumps(QUESTIONS)
             self._send(content)
             return
+        elif path[0] == "dashboard":
+            t = None
+            with rlock:
+                with open('result.json', 'r') as f:
+                    t = json.loads(f.read())
+            q = []
+            for _ in QUESTIONS:
+                q.append(_[0])
+            for k, v in t.items():
+                s = 0
+                for _ in q:
+                    s += sum(v[_])
+                    v['sum'] = s
+                    v['num'] = v['t'] + v['f']
+            sq = json.dumps(q)
+            sp = json.dumps(sorted(list(t.values()), key=lambda x: (-x['sum'], x['num'])))
+            self.send_response(200)
+            self.send_header('Content-Type', 'text/html')
+            self.end_headers()
+            self.wfile.write(template.replace('{{ Q }}', sq).replace('{{ P }}', sp).encode())
+            return
         self._send_error()
 
     def do_POST(self):
@@ -86,7 +110,7 @@ class WebHandler(BaseHTTPRequestHandler):
             out = self.rfile.read(int(self.headers.get('Content-Length'))).decode()
             if token != '':
                 if token not in result:
-                    result[token] = {'t': 0, 'f': 0}
+                    result[token] = {'info': token, 't': 0, 'f': 0}
                     for k, v in QUESTIONS:
                         result[token][k] = [0 for i in range(v)]
             if out is None:
