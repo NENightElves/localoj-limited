@@ -5,6 +5,8 @@ import subprocess
 import json
 from getpass import getpass
 
+TOKEN = ''
+TOKEN = input()
 SECRET = ''
 if not URL.endswith('/'):
     URL = URL+'/'
@@ -15,6 +17,8 @@ def get(url, content=None):
     h = {}
     if SECRET is not None and SECRET != '':
         h['Authorization'] = SECRET
+    if TOKEN is not None and TOKEN != '':
+        h['Token'] = TOKEN
     r = None
     if content is None:
         r = Request(url, headers=h, method='GET')
@@ -46,7 +50,7 @@ def run(q, qn):
     proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     o = None
     try:
-        o, _ = proc.communicate(input=q_in, timeout=3)
+        o, _ = proc.communicate(input=q_in, timeout=TIMEOUT)
     except subprocess.TimeoutExpired:
         proc.kill()
         proc.wait()
@@ -59,7 +63,7 @@ def run(q, qn):
 def check(q, qn):
     r = run(q, qn)
     if r is None:
-        return False
+        r = ''
     if get_out(q, qn, r).strip().lower() == "true":
         return True
     return False
@@ -69,7 +73,7 @@ def checkall():
     q = get_q()
     a = 0
     b = 0
-    for k, (v, prefix) in q.items():
+    for k, v in q:
         print(f'\033[0m{k.center(20, '=')}')
         x = 0
         for _ in range(1, v+1):

@@ -1,9 +1,19 @@
 import os
-import sys
-import uuid
+import threading
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from config import *
 import json
+
+result = {}
+rlock = threading.Lock()
+tokens = []
+if os.path.exists('result.json'):
+    with open('result.json', 'r') as f:
+        result = json.loads(f.read())
+if os.path.exists('tokens.txt'):
+    with open('tokens.txt', 'r') as f:
+        for _ in f:
+            tokens.append(_.strip())
 
 
 class WebHandler(BaseHTTPRequestHandler):
@@ -29,7 +39,7 @@ class WebHandler(BaseHTTPRequestHandler):
             if len(path) != 3:
                 self._send_error()
                 return
-            realpath = os.path.join('.', path[1], QUESTIONS[path[1]][1] + path[2]+'.in')
+            realpath = os.path.join('.', path[1], QUESTIONS_PREFIX[path[1]] + path[2]+'.in')
             if not os.path.exists(realpath):
                 self._send_error()
                 return
@@ -56,13 +66,17 @@ class WebHandler(BaseHTTPRequestHandler):
             self._send_error()
             return
         if path[0] == 'out':
+            token = self.headers.get('Token', '')
+            if len(tokens) > 0 and token not in tokens:
+                self._send_error()
+                return
             if SECRET != None and self.headers.get('Authorization', '') != SECRET:
                 self._send_error()
                 return
             if len(path) != 3:
                 self._send_error()
                 return
-            realpath = os.path.join('.', path[1], QUESTIONS[path[1]][1] + path[2]+'.out')
+            realpath = os.path.join('.', path[1], QUESTIONS_PREFIX[path[1]] + path[2]+'.out')
             if not os.path.exists(realpath):
                 self._send_error()
                 return
@@ -70,13 +84,31 @@ class WebHandler(BaseHTTPRequestHandler):
             with open(realpath, 'r') as f:
                 content = f.read()
             out = self.rfile.read(int(self.headers.get('Content-Length'))).decode()
+            if token != '':
+                if token not in result:
+                    result[token] = {'t': 0, 'f': 0}
+                    for k, v in QUESTIONS:
+                        result[token][k] = [0 for i in range(v)]
             if out is None:
+                if token != '':
+                    result[token][path[1]][int(path[2])-1] = 0
+                    result[token]['f'] += 1
                 self._send('False')
                 return
             if out.strip() == content.strip():
+                if token != '':
+                    result[token][path[1]][int(path[2])-1] = 1
+                    result[token]['t'] += 1
                 self._send('True')
             else:
+                if token != '':
+                    result[token][path[1]][int(path[2])-1] = 0
+                    result[token]['f'] += 1
                 self._send('False')
+            if token != '':
+                with rlock:
+                    with open('result.json', 'w') as f:
+                        f.write(json.dumps(result))
             return
         self._send_error()
 

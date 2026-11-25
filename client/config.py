@@ -1,6 +1,7 @@
 import os
 
 URL = 'http://localhost:6666/'
+TIMEOUT = 3
 
 
 def get_cmd(q):
