@@ -20,8 +20,8 @@
         const Q = {{ Q }};
         const P = {{ P }};
         document.getElementById("t").innerHTML =
-            '<tr><th>个人信息</th>'+Q.map(k=>`<th>${k}</th>`).join('')+'<th>总分</th><th>判分次数</th></tr>' +
-            P.map(p => `<tr><td>${p.info}</td>` + Q.map(k => `<td>${p[k].map(v => v?`<b class="b1">1</b>`:`<b class="b0">0</b>`).join('')}</td>`).join('') +
+            '<tr><th>序号</th><th>个人信息</th>'+Q.map(k=>`<th>${k}</th>`).join('')+'<th>总分</th><th>判分次数</th></tr>' +
+            P.map(p => `<tr><td>${p.no}</td><td>${p.info}</td>` + Q.map(k => `<td>${p[k].map(v => v?`<b class="b1">1</b>`:`<b class="b0">0</b>`).join('')}</td>`).join('') +
                 `<td>${p.sum}</td><td>${p.num}</td></tr>`).join('');
     </script>
 </html>

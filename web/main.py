@@ -77,7 +77,12 @@ class WebHandler(BaseHTTPRequestHandler):
                     v['sum'] = s
                     v['num'] = v['t'] + v['f']
             sq = json.dumps(q)
-            sp = json.dumps(sorted(list(t.values()), key=lambda x: (-x['sum'], x['num'])))
+            t = sorted(list(t.values()), key=lambda x: (-x['sum'], x['num']))
+            i = 0
+            for _ in t:
+                i += 1
+                _['no'] = i
+            sp = json.dumps(t)
             self.send_response(200)
             self.send_header('Content-Type', 'text/html')
             self.end_headers()
