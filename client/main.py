@@ -63,6 +63,10 @@ def check(q, qn):
         return 'Skip'
     if get_out(q, qn, r[1]).strip().lower() == "true":
         return 'True'
+    if r[0] == 2:
+        return 'Error'
+    if r[0] == 3:
+        return 'Timeout'
     return 'False'
 
 
@@ -78,10 +82,10 @@ def checkall():
             if r == 'True':
                 x += 1
                 print(f'\033[32mtest{_}: True')
-            elif r == 'False':
-                print(f'\033[31mtest{_}: False')
-            else:
+            elif r == 'Skip':
                 print(f'\033[34mtest{_}: Skip')
+            else:
+                print(f'\033[31mtest{_}: {r}')
         a += x
         b += v
         print(f'\033[33m{(str(x)+'/'+str(v)).center(20, '=')}')
