@@ -1,7 +1,10 @@
 import os
+import getpass
 
 URL = 'http://localhost:6666/'
 TIMEOUT = 3
+SECRET = None
+# SECRET = getpass.getpass()
 
 
 def get_cmd(q):
