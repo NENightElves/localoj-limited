@@ -7,9 +7,11 @@ import json
 result = {}
 rlock = threading.Lock()
 tokens = {}
-if os.path.exists('result.json'):
-    with open('result.json', 'r') as f:
-        result = json.loads(f.read())
+if not os.path.exists('result.json'):
+    with open('result.json', 'w') as f:
+        f.write(json.dumps(result))
+with open('result.json', 'r') as f:
+    result = json.loads(f.read())
 if os.path.exists('tokens.txt'):
     with open('tokens.txt', 'r') as f:
         for _ in f:
