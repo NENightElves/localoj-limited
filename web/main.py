@@ -116,7 +116,7 @@ class WebHandler(BaseHTTPRequestHandler):
             out = self.rfile.read(int(self.headers.get('Content-Length'))).decode()
             if token != '':
                 if token not in result:
-                    result[token] = {'info': tokens[token], 't': 0, 'f': 0}
+                    result[token] = {'token': token, 'info': tokens[token], 't': 0, 'f': 0}
                     for k, v in QUESTIONS:
                         result[token][k] = [0 for i in range(v)]
             if out is None:

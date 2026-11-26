@@ -45,7 +45,7 @@ def get_out(p1, p2, out):
 def run(q, qn):
     cmd = get_cmd(q)
     if cmd is None:
-        return None
+        return (1, '')
     q_in = get_in(q, qn)
     proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     o = None
@@ -54,19 +54,19 @@ def run(q, qn):
     except subprocess.TimeoutExpired:
         proc.kill()
         proc.wait()
-        return None
+        return (3, '')
     if proc.returncode != 0:
-        return None
-    return o
+        return (2, '')
+    return (0, o)
 
 
 def check(q, qn):
     r = run(q, qn)
-    if r is None:
-        r = ''
-    if get_out(q, qn, r).strip().lower() == "true":
-        return True
-    return False
+    if r[0] == 1:
+        return 'Skip'
+    if get_out(q, qn, r[1]).strip().lower() == "true":
+        return 'True'
+    return 'False'
 
 
 def checkall():
@@ -78,14 +78,16 @@ def checkall():
         x = 0
         for _ in range(1, v+1):
             r = check(k, str(_))
-            if r:
+            if r == 'True':
                 x += 1
                 print(f'\033[32mtest{_}: True')
-            else:
+            elif r == 'False':
                 print(f'\033[31mtest{_}: False')
+            else:
+                print(f'\033[34mtest{_}: Skip')
         a += x
         b += v
-        print(f'\033[34m{(str(x)+'/'+str(v)).center(20, '=')}')
+        print(f'\033[33m{(str(x)+'/'+str(v)).center(20, '=')}')
         print('\033[0m')
     print(f'\033[30;47mFinal: {a}/{b}\033[0m')
 
