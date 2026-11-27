@@ -1,6 +1,6 @@
 import os
 import threading
-from http.server import HTTPServer, BaseHTTPRequestHandler
+from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from config import *
 import json
 
@@ -116,37 +116,32 @@ class WebHandler(BaseHTTPRequestHandler):
             with open(realpath, 'r') as f:
                 content = f.read()
             out = self.rfile.read(int(self.headers.get('Content-Length'))).decode()
-            if token != '':
-                if token not in result:
-                    result[token] = {'token': token, 'info': tokens[token], 't': 0, 'f': 0}
-                    for k, v in QUESTIONS:
-                        result[token][k] = [0 for i in range(v)]
             if out is None:
-                if token != '':
-                    result[token][path[1]][int(path[2])-1] = 0
-                    result[token]['f'] += 1
-                self._send('False')
-                return
+                out = ''
+            r = 'False'
             if out.strip() == content.strip():
-                if token != '':
-                    result[token][path[1]][int(path[2])-1] = 1
-                    result[token]['t'] += 1
-                self._send('True')
-            else:
-                if token != '':
-                    result[token][path[1]][int(path[2])-1] = 0
-                    result[token]['f'] += 1
-                self._send('False')
+                r = 'True'
             if token != '':
                 with rlock:
+                    if token not in result:
+                        result[token] = {'token': token, 'info': tokens[token], 't': 0, 'f': 0}
+                        for k, v in QUESTIONS:
+                            result[token][k] = [0 for i in range(v)]
+                    if r == 'True':
+                        result[token][path[1]][int(path[2])-1] = 1
+                        result[token]['t'] += 1
+                    else:
+                        result[token][path[1]][int(path[2])-1] = 0
+                        result[token]['f'] += 1
                     with open('result.json', 'w') as f:
                         f.write(json.dumps(result))
+            self._send(r)
             return
         self._send_error()
 
 
 def main():
-    server = HTTPServer((HOST, PORT), WebHandler)
+    server = ThreadingHTTPServer((HOST, PORT), WebHandler)
     server.serve_forever()
 
 

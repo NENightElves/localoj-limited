@@ -1,8 +1,8 @@
 import os
 import getpass
 
-URL = 'http://localhost:6666/'
-TIMEOUT = 3
+URL = 'http://localhost:12345/'
+TIMEOUT = 5
 SECRET = None
 # SECRET = getpass.getpass()
 

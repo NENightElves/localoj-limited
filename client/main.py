@@ -75,7 +75,7 @@ def checkall():
     a = 0
     b = 0
     for k, v in q:
-        print(f'\033[0m{k.center(20, '=')}')
+        print(f"\033[0m{k.center(20, '=')}")
         x = 0
         for _ in range(1, v+1):
             r = check(k, str(_))
@@ -88,7 +88,7 @@ def checkall():
                 print(f'\033[31mtest{_}: {r}')
         a += x
         b += v
-        print(f'\033[33m{(str(x)+'/'+str(v)).center(20, '=')}')
+        print(f"\033[33m{(str(x)+'/'+str(v)).center(20, '=')}")
         print('\033[0m')
     print(f'\033[30;47mFinal: {a}/{b}\033[0m')
 

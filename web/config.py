@@ -3,7 +3,7 @@ import uuid
 
 SECRET = None
 HOST = '0.0.0.0'
-PORT = 6666
+PORT = 12345
 QUESTIONS = [
     ('q1', 10),
     ('q2', 10)
