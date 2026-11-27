@@ -142,8 +142,8 @@ class WebHandler(BaseHTTPRequestHandler):
 
 def main():
     server = ThreadingHTTPServer((HOST, PORT), WebHandler)
+    print('Starting Server...')
     server.serve_forever()
-    print('Server Started')
 
 
 if __name__ == '__main__':
